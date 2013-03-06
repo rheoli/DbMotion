@@ -53,7 +53,7 @@ class Database
   end
   
   def migrate(_old_mom_files)
-    old_mom_files=_old_mom_files % '%03d'
+    old_mom_file=_old_mom_files % '%03d'
     error_ptr = Pointer.new(:object)
     metadata=NSPersistentStoreCoordinator.metadataForPersistentStoreOfType(NSSQLiteStoreType, URL:@store_url, error:error_ptr)
     return false unless metadata
