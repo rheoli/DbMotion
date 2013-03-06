@@ -53,14 +53,14 @@ class Database
   end
   
   def migrate(_old_mom_files)
-    old_mom_file=_old_mom_files % '%03d'
+    old_mom_files=_old_mom_files % '%03d'
     error_ptr = Pointer.new(:object)
     metadata=NSPersistentStoreCoordinator.metadataForPersistentStoreOfType(NSSQLiteStoreType, URL:@store_url, error:error_ptr)
     return false unless metadata
     0.upto(999) do |version|
       old_mom_file=old_mom_files % version
-      p old_mome_file
-      old_mom_url = NSURL.fileURLWithPath("#{NSBundle.mainBundle.resourcePath}/#{_old_mom_file}")
+      p old_mom_file
+      old_mom_url = NSURL.fileURLWithPath("#{NSBundle.mainBundle.resourcePath}/#{old_mom_file}")
       p old_mom_url
       old_model=NSManagedObjectModel.alloc.initWithContentsOfURL(old_mom_url)
       compatible=old_model.isConfiguration(nil, compatibleWithStoreMetadata:metadata)
