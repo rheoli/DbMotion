@@ -9,12 +9,17 @@ class Database
     NSEntityDescription.insertNewObjectForEntityForName(_name, inManagedObjectContext:@context)
   end
   
-  def find_entry(_name)
+  # Example: _sort=[NSSortDescriptor.alloc.initWithKey('name', ascending:true)] 
+  def find_entry(_name, _sort=[])
     request = NSFetchRequest.alloc.init
     request.entity = NSEntityDescription.entityForName(_name, inManagedObjectContext:@context)
-    #request.sortDescriptors = [NSSortDescriptor.alloc.initWithKey('creation_date', ascending:false)] 
+    request.sortDescriptors = _sort
     error_ptr = Pointer.new(:object)
     @context.executeFetchRequest(request, error:error_ptr)
+  end
+
+  def delete_entry(_obj)
+    @context.deleteObject(_obj)
   end
   
   def save
