@@ -16,19 +16,20 @@ then run `bundle update`
 
 in AppDelegate add the following to open the specified Database:
 ```ruby
-DbMotion::Database.new.open("MyCoreDataModel_%s.mom", "MyCoreData.sqlite")
+dbm=DbMotion::Database.new.open("MyCoreData.sqlite", withMOMFile: "MyCoreDataModel_%s.mom")
+DbMotion::Database.setSharedSession(dbm)
 ```
 
 Search for Items in the Database:
 ```ruby
-items=DbMotion::Database.run.find_entry("Item")
+items=DbMotion::Database.shared.find_entry("Item")
 ```
 
 Save something in the Database:
 ```ruby
-item=DbMotion::Database.run.create_entry("Item")
+item=DbMotion::Database.shared.create_entry("Item")
 item.name=form[:name]
-if DbMotion::Database.run.save
+if DbMotion::Database.shared.save
   # item saved
 end
 ```
