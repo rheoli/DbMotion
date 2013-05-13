@@ -8,3 +8,4 @@ Motion::Project::App.setup do |app|
   app.files = Dir.glob(File.join(File.dirname(__FILE__), 'DbMotion/**/*.rb')) | app.files
   app.frameworks += ['CoreData']
 end
+
