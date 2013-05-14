@@ -12,21 +12,31 @@ module DbMotion
     end
     
     def self.version(_version, &block)
+      return if _version==0
       @@models||={}
       e = Entities.new(&block)
-      model = NSManagedObjectModel.alloc.init
-      model.entities=e.entities.values
+      model = e.mom_model
+      if model.nil?
+        model = NSManagedObjectModel.alloc.init
+        model.entities=e.entities.values
+      end
       @@models["#{sprintf "%03d", _version}"]=model
     end
     
   end
   
   class Entities
-    attr_reader :entities
+    attr_reader :entities, :mom_model
 
     def initialize(&block)
-      @entities = {}
+      @entities  = {}
+      @mom_model = nil
       block.call(self)
+    end
+    
+    def mom_file(_mom_file)
+      @mom_url = NSURL.fileURLWithPath("#{NSBundle.mainBundle.resourcePath}/#{_mom_file}")
+      @mom_model=NSManagedObjectModel.alloc.initWithContentsOfURL(@mom_url)
     end
     
     def entity(_name, &block)
@@ -108,8 +118,11 @@ module DbMotion
       string:  NSStringAttributeType,
       integer: NSInteger16AttributeType,
       double:  NSDoubleAttributeType,
+      float: NSFloatAttributeType,
+      decimal: NSDecimalAttributeType,
+      boolean: NSBooleanAttributeType,
       date:    NSDateAttributeType,
-      bindata: NSBinaryDataAttributeType
+      bindata: NSBinaryDataAttributeType,    
     }
 
     def initialize(&block)
