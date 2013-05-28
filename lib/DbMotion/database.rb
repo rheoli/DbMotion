@@ -10,7 +10,9 @@ module DbMotion
     end
   
     def create_entry(_name)
-      NSEntityDescription.insertNewObjectForEntityForName(_name, inManagedObjectContext:@context)
+      e=NSEntityDescription.insertNewObjectForEntityForName(_name, inManagedObjectContext:@context)
+      e.now_created if e.respond_to?("now_created")
+      e
     end
   
     def get_obj_id_from_url(_url)
