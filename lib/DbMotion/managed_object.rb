@@ -2,6 +2,10 @@ module DbMotion
 
   class ManagedObject < NSManagedObject
   
+    def to_url
+      self.objectID.URIRepresentation.absoluteString
+    end
+  
   	def to_s
   		get_title
   	end
@@ -21,7 +25,7 @@ module DbMotion
     end
   
     def get_coordinate
-      return nil if self.respond_to?("pos_lat") or self.respond_to?("pos_lon")
+      return nil if !self.respond_to?("pos_lat") or !self.respond_to?("pos_lon")
       return nil if self.pos_lat.nil? or self.pos_lon.nil?
       return nil if (self.pos_lat*100.0).to_i==0 and (self.pos_lon*100.0).to_i==0
       ::CLLocationCoordinate2D.new(self.pos_lat, self.pos_lon)
@@ -30,11 +34,11 @@ module DbMotion
   
   
     def now_created
-      self.created=NSDate.date
+      self.created=NSDate.date if self.respond_to?("created")
     end
   
     def now_changed
-      self.changed=NSDate.date
+      self.changed=NSDate.date if self.respond_to?("changed")
     end
   
     def is_changed

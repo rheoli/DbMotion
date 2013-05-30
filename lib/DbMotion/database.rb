@@ -60,7 +60,55 @@ module DbMotion
       unless @store.addPersistentStoreWithType(NSSQLiteStoreType, configuration:nil, URL:@store_url, options:nil, error:error_ptr)
         raise "Can't add persistent SQLite store: #{error_ptr[0].description}"
       end
+      
+      # set will save notification
+      NSNotificationCenter.defaultCenter.addObserver(
+        self,
+        selector:"will_save_notify:",
+        name:NSManagedObjectContextWillSaveNotification,
+        object:nil
+      )
+      # set did save notification
+      NSNotificationCenter.defaultCenter.addObserver(
+        self,
+        selector:"did_save_notify:",
+        name:NSManagedObjectContextDidSaveNotification,
+        object:nil
+      )
+      @did_save_calls=[]
+
       self
+    end
+    
+    def will_save_notify(notification)
+      # Update changed dates
+      if notification.object.updatedObjects.is_a?(NSSet)
+        notification.object.updatedObjects.allObjects.each do |e|
+          e.now_changed
+        end
+      end
+    end
+    
+    def did_save_notify(notification)
+      objs={}
+      ["updated","deleted","inserted"].each do |type|
+        if notification.userInfo.has_key?(type) and notification.userInfo[type].is_a?(NSSet)
+          notification.userInfo[type].allObjects.each do |obj|
+            if type=="updated" and obj.respond_to?("hide") and obj.hide
+              objs[obj.objectID]="deleted"
+            else
+              objs[obj.objectID]=type
+            end
+          end
+        end
+      end
+      @did_save_calls.each do |block|
+        block.call(objs) if block.is_a?(Proc)
+      end
+    end
+    
+    def add_did_save(&block)
+      @did_save_calls<<block
     end
   
     def compatible?
